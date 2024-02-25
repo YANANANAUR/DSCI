@@ -16,58 +16,62 @@ df_train = pd.read_csv("train.csv")
 
 # Main Dashboard
 st.title('Can You survive the Titanic?')
-st.markdown('This application will predict whether you will survive on the Titanic')
+
+# Introduction and Aims and Objectives
+intro_col, gif_col = st.columns([2, 1])
 
 # Introduction
-st.header('Intro')
-st.write('Explore the depths of history with our Titanic Dashboard Application, an insightful tool born from the Titanic dataset sourced from Kaggle\'s beginner competition. Meticulously crafted by combining gender_submission and Titanic test files, this comprehensive CSV file forms the backbone of our application. Our goal is to distill key insights from the dataset, offering users an intuitive dashboard to unravel the factors that shaped survival aboard the ill-fated Titanic.')
+intro_col.header('Intro')
+intro_col.write('Explore the depths of history with our Titanic Dashboard Application, an insightful tool born from the Titanic dataset sourced from Kaggle\'s beginner competition. Meticulously crafted by combining gender_submission and Titanic test files, this comprehensive CSV file forms the backbone of our application. Our goal is to distill key insights from the dataset, offering users an intuitive dashboard to unravel the factors that shaped survival aboard the ill-fated Titanic.')
 
 # Aims and Objectives
-st.subheader('Aims and Objectives')
-st.write('Our dashboard application\'s ultimate purpose is to increase understanding of the Titanic dataset by striving for accuracy levels higher than 70%. In order to do this, we have three specific objectives: identify the critical factors influencing survival rates, present these findings in easily interpreted charts, and enable users to make informed predictions that may be as accurate as 100%.')
+intro_col.subheader('Aims and Objectives')
+intro_col.write('Our dashboard application\'s ultimate purpose is to increase understanding of the Titanic dataset by striving for accuracy levels higher than 70%. In order to do this, we have three specific objectives: identify the critical factors influencing survival rates, present these findings in easily interpreted charts, and enable users to make informed predictions that may be as accurate as 100%.')
 
-# Display the image
-image = Image.open('experience-at-titanic-pigeon-forge.jpg')
-st.image(image, caption='Let\'s see if you can survive me')
+# Image (GIF)
+gif_col.image('QWx3qZ.gif', use_column_width=True)
 
 # Dataset Overview
 st.subheader('Dataset Overview')
 st.dataframe(df_train)
 
+# Filter by Survival for Visualization: Age Distribution
+survival_filter = st.selectbox("Filter by Survival (Age Distribution)", options=['All', 'Survived', 'Not Survived'])
+filtered_data_age = df_train.copy()
+
 # Apply filters
 if survival_filter != 'All':
     filtered_data_age = filtered_data_age[filtered_data_age['Survived'] == (1 if survival_filter == 'Survived' else 0)]
 
-if gender_filter != 'All':
-    filtered_data_age = filtered_data_age[filtered_data_age['Sex'] == gender_filter]
-
-# Visualization: Age Distribution by Survival and Gender
+# Visualization 1: Age Distribution by Survival
 age_chart = alt.Chart(filtered_data_age).mark_bar().encode(
     x=alt.X('Age:Q', bin=True),
     y='count()',
     color='Survived:N',
-    column='Sex:N',
-    tooltip=['Sex:N', 'Survived:N', 'count()']
-).properties(title='Age Distribution by Survival and Gender')
+    tooltip=['Survived:N', 'count()']
+).properties(title='Age Distribution by Survival')
 
 # Use ChartBuilder for interactivity
 age_chart = st.altair_chart(age_chart, use_container_width=True)
 
+# Visualization 2 and 3: Age and Pclass Distribution (Side by Side)
+col1, col2 = st.columns(2)
+
 # Filter by Pclass for Visualization 2
-pclass_filter_2 = st.selectbox("Filter by Pclass (Visualization 2)", options=['All'] + list(df_train['Pclass'].unique()))
-filtered_data_age = df_train if pclass_filter_2 == 'All' else df_train[df_train['Pclass'] == pclass_filter_2]
+pclass_filter_2 = col1.selectbox("Filter by Pclass (Visualization 2)", options=['All'] + list(df_train['Pclass'].unique()))
+filtered_data_age_pclass = df_train if pclass_filter_2 == 'All' else df_train[df_train['Pclass'] == pclass_filter_2]
 
 # Visualization 2: Age Distribution
-age_chart = alt.Chart(filtered_data_age).mark_bar().encode(
+age_chart_pclass = alt.Chart(filtered_data_age_pclass).mark_bar().encode(
     alt.X("Age:Q", bin=True),
     y='count()',
     tooltip=['count()']
 ).properties(title='Age Distribution')
-st.altair_chart(age_chart)
+col1.altair_chart(age_chart_pclass)
 
 # Filter by Pclass for Visualization 3
-pclass_filter_2 = st.selectbox("Filter by Pclass (Visualization 3)", options=['All'] + list(df_train['Pclass'].unique()))
-filtered_data_pclass = df_train if pclass_filter_2 == 'All' else df_train[df_train['Pclass'] == pclass_filter_2]
+pclass_filter_3 = col2.selectbox("Filter by Pclass (Visualization 3)", options=['All'] + list(df_train['Pclass'].unique()))
+filtered_data_pclass = df_train if pclass_filter_3 == 'All' else df_train[df_train['Pclass'] == pclass_filter_3]
 
 # Visualization 3: Pclass Distribution
 pclass_chart = alt.Chart(filtered_data_pclass).mark_bar().encode(
@@ -75,39 +79,53 @@ pclass_chart = alt.Chart(filtered_data_pclass).mark_bar().encode(
     y='count()',
     tooltip=['Pclass:O', 'count()']
 ).properties(title='Pclass Distribution')
-st.altair_chart(pclass_chart)
+col2.altair_chart(pclass_chart)
 
-# Filter by Sex for Visualization 4
-sex_filter = st.selectbox("Filter by Sex", options=['All', 'Male', 'Female'])
-filtered_data_sex = df_train if sex_filter == 'All' else df_train[df_train['Sex'] == sex_filter]
+# Visualization 5: Age Distribution Histogram
+survival_filter_5 = st.selectbox("Filter by Survival (Visualization 5)", options=['All', 'Survived', 'Not Survived'])
 
-# Visualization: SibSp and Parch Distribution
-sibsp_parch_chart = alt.Chart(filtered_data_sex).mark_circle().encode(
-    x='SibSp:O',
-    y='Parch:O',
+filtered_data_age_hist = df_train.copy()
+
+# Apply filters
+if survival_filter_5 != 'All':
+    filtered_data_age_hist = filtered_data_age_hist[filtered_data_age_hist['Survived'] == (1 if survival_filter_5 == 'Survived' else 0)]
+
+# Visualization 5: Age Distribution Histogram
+age_hist_chart = alt.Chart(filtered_data_age_hist).mark_bar().encode(
+    x=alt.X('Age:Q', bin=True, title='Age'),
+    y='count()',
+    color='Survived:N',
+    column='Sex:N',
+    tooltip=['Age:Q', 'count()', 'Survived:N', 'Sex:N']
+).properties(title='Age Distribution Histogram')
+
+st.altair_chart(age_hist_chart)
+
+# Visualization 4 and 6: SibSp and Parch Distribution and Embarked Distribution (Side by Side)
+col3, col4 = st.columns(2)
+
+# Filter by Parch for Visualization 4
+parch_filter = col3.selectbox("Filter by Parch (Visualization 4)", options=['All'] + list(df_train['Parch'].unique()))
+filtered_data_parch = df_train if parch_filter == 'All' else df_train[df_train['Parch'] == parch_filter]
+
+# Visualization 4: SibSp and Parch Distribution (Bar Chart)
+sibsp_chart = alt.Chart(filtered_data_parch).mark_bar().encode(
+    x=alt.X('SibSp:O', title='SibSp'),
+    y='count()',
     color='Sex:N',
-    tooltip=['SibSp:O', 'Parch:O', 'Sex:N']
-).properties(title='SibSp and Parch Distribution')
+    column='Parch:O',
+    tooltip=['SibSp:O', 'Parch:O', 'Sex:N', 'count()']
+).properties(title='SibSp and Parch Distribution (Bar Chart)')
 
-st.altair_chart(sibsp_parch_chart)
-
-# Filter by Gender for Visualization 5
-gender_filter = st.selectbox("Filter by Gender (Visualization 5)", options=['All', 'Male', 'Female'])
-filtered_data_sibsp = df_train if gender_filter == 'All' else df_train[df_train['Sex'] == gender_filter]
-
-# Visualization 5: SibSp and Parch Distribution
-sibsp_chart = alt.Chart(filtered_data_sibsp).mark_circle().encode(
-    x='SibSp:O',
-    y='Parch:O',
-    color='Sex:N',
-    tooltip=['SibSp:O', 'Parch:O', 'Sex:N']
-).properties(title='SibSp and Parch Distribution')
-
-st.altair_chart(sibsp_chart)
+col3.altair_chart(sibsp_chart)
 
 # Filter by Survival for Visualization 6
-survival_filter = st.selectbox("Filter by Survival (Visualization 6)", options=['All', 'Survived', 'Not Survived'])
-filtered_data_embarked = df_train if survival_filter == 'All' else df_train[df_train['Survived'] == (1 if survival_filter == 'Survived' else 0)]
+survival_filter_6 = col4.selectbox("Filter by Survival (Visualization 6)", options=['All', 'Survived', 'Not Survived'])
+filtered_data_embarked = df_train.copy()
+
+# Apply filters
+if survival_filter_6 != 'All':
+    filtered_data_embarked = filtered_data_embarked[filtered_data_embarked['Survived'] == (1 if survival_filter_6 == 'Survived' else 0)]
 
 # Visualization 6: Embarked Distribution
 embarked_chart = alt.Chart(filtered_data_embarked).mark_bar().encode(
@@ -115,4 +133,5 @@ embarked_chart = alt.Chart(filtered_data_embarked).mark_bar().encode(
     y='count()',
     tooltip=['Embarked:O', 'count()']
 ).properties(title='Embarked Distribution')
-st.altair_chart(embarked_chart)
+
+col4.altair_chart(embarked_chart)

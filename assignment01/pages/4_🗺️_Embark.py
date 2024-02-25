@@ -3,72 +3,65 @@ import pandas as pd
 import altair as alt
 import seaborn as sns
 
-class SurvivalAnalysis:
-    def __init__(self, train_data, test_data):
-        self.train_data = train_data
-        self.test_data = test_data
-        self.selected_class = None
+# Sample data for demonstration
+train_data = sns.load_dataset("titanic")
 
-    def handle_missing_values(self):
-        embarked_mode = self.train_data['Embarked'].mode()[0]
-        data = [self.train_data, self.test_data]
+# Streamlit app
+st.title("Titanic Survival Visualization")
 
-        for dataset in data:
-            dataset['Embarked'] = dataset['Embarked'].fillna(embarked_mode)
+# Filter for Embarked
+embarked_filter = st.selectbox("Select Embarked", train_data["embarked"].unique())
 
-    def visualize_data(self):
-        sns.set(style="darkgrid")
-        sns.countplot(x='Survived', data=self.train_data, hue="Embarked", palette="Set1")
+# Altair plot
+chart = alt.Chart(train_data[train_data["embarked"] == embarked_filter]).mark_bar().encode(
+    x='count():O',
+    y='survived:N',
+    color='embarked:N',
+).properties(
+    width=600,
+    height=300
+)
 
-    def streamlit_app(self):
-        st.title("Survival Analysis")
-        st.subheader("Explore survival data")
+# Display Altair chart with Streamlit
+st.altair_chart(chart, use_container_width=True)
 
-        # Filter data based on selected class
-        filtered_data = self.train_data[self.train_data['Survived'] == (self.selected_class == 'Survive')]
+# Sample data for demonstration
+train_data = sns.load_dataset("titanic")
+test_data = sns.load_dataset("titanic")  # Assuming you have a 'test_data' variable
 
-        # Display filtered data
-        st.write(f"Displaying data for {self.selected_class} passengers:")
-        st.write(filtered_data)
+# Impute missing values for 'Embarked'
+embarked_mode = train_data['embarked'].mode()
+data = [train_data, test_data]
+for dataset in data:
+    dataset['embarked'] = dataset['embarked'].fillna(embarked_mode[0])
 
-        # Altair chart for additional visualization
-        chart = alt.Chart(filtered_data).mark_bar().encode(
-            x='Embarked',
-            y='count()',
-            color='Embarked'
-        ).properties(
-            width=600,
-            height=400
-        )
+# Streamlit app
+st.title("Survival Analysis by Pclass, Sex, and Embarked")
 
-        st.altair_chart(chart, use_container_width=True)
+# Filter for gender
+gender_filter = st.selectbox("Select Gender", ["All", "Male", "Female"])
 
-# Example usage
-train_data = pd.read_csv("train.csv")
-test_data = pd.read_csv("test.csv")
+# Filter for embarked
+embarked_filter = st.selectbox("Select Embarked", ["All"] + train_data["embarked"].unique().tolist())
 
-# Create instance of SurvivalAnalysis
-survival_analysis = SurvivalAnalysis(train_data, test_data)
+# Filter data based on gender and embarked
+filtered_data = train_data
+if gender_filter != "All":
+    filtered_data = filtered_data[filtered_data["sex"] == gender_filter.lower()]
 
-# Handle missing values
-survival_analysis.handle_missing_values()
+if embarked_filter != "All":
+    filtered_data = filtered_data[filtered_data["embarked"] == embarked_filter]
 
-# Visualize data
-survival_analysis.visualize_data()
+# Altair bar chart
+chart = alt.Chart(filtered_data).mark_bar().encode(
+    x=alt.X('pclass:N', title='Pclass'),
+    y=alt.Y('average(survived):Q', title='Survival Rate'),
+    color='sex:N',
+    column='embarked:N'
+).properties(
+    width=200,
+    height=200
+)
 
-# Streamlit app context
-with st.form(key='my_form'):
-    st.title("Survival Analysis")
-    st.subheader("Explore survival data")
-
-    # Selectbox for choosing class ticket
-    selected_class = st.selectbox('Choose your class ticket', ['Survive', 'Not survive'])
-
-    # Set the selected class in the SurvivalAnalysis instance
-    survival_analysis.selected_class = selected_class
-
-    # Form submission button
-    submit_button = st.form_submit_button(label='Submit')
-
-# Run the Streamlit app
-survival_analysis.streamlit_app()
+# Display Altair chart with Streamlit
+st.altair_chart(chart, use_container_width=True)
