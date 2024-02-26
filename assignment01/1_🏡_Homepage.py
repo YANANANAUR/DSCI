@@ -18,15 +18,15 @@ df_train = pd.read_csv("train.csv")
 st.title('Can You survive the Titanic?')
 
 # Introduction and Aims and Objectives
-intro_col, gif_col = st.columns([2, 1])
+introduction_col, gif_col = st.columns([2, 1])
 
 # Introduction
-intro_col.header('Intro')
-intro_col.write('Explore the depths of history with our Titanic Dashboard Application, an insightful tool born from the Titanic dataset sourced from Kaggle\'s beginner competition. Meticulously crafted by combining gender_submission and Titanic test files, this comprehensive CSV file forms the backbone of our application. Our goal is to distill key insights from the dataset, offering users an intuitive dashboard to unravel the factors that shaped survival aboard the ill-fated Titanic.')
+introduction_col.header('Intro')
+introduction_col.write('Explore the depths of history with our Titanic Dashboard Application, an insightful tool born from the Titanic dataset sourced from Kaggle\'s beginner competition. Meticulously crafted by combining gender_submission and Titanic test files, this comprehensive CSV file forms the backbone of our application. Our goal is to distill key insights from the dataset, offering users an intuitive dashboard to unravel the factors that shaped survival aboard the ill-fated Titanic.')
 
 # Aims and Objectives
-intro_col.subheader('Aims and Objectives')
-intro_col.write('Our dashboard application\'s ultimate purpose is to increase understanding of the Titanic dataset by striving for accuracy levels higher than 70%. In order to do this, we have three specific objectives: identify the critical factors influencing survival rates, present these findings in easily interpreted charts, and enable users to make informed predictions that may be as accurate as 100%.')
+introduction_col.subheader('Aims and Objectives')
+introduction_col.write('Our dashboard application\'s ultimate purpose is to increase understanding of the Titanic dataset by striving for accuracy levels higher than 70%. In order to do this, we have three specific objectives: identify the critical factors influencing survival rates, present these findings in easily interpreted charts, and enable users to make informed predictions that may be as accurate as 100%.')
 
 # Image (GIF)
 gif_col.image('QWx3qZ.gif', use_column_width=True)
@@ -82,7 +82,7 @@ pclass_chart = alt.Chart(filtered_data_pclass).mark_bar().encode(
 col2.altair_chart(pclass_chart)
 
 # Visualization 5: Age Distribution Histogram
-survival_filter_5 = st.selectbox("Filter by Survival (Visualization 5)", options=['All', 'Survived', 'Not Survived'])
+survival_filter_5 = st.selectbox("Filter by Survival (Visualization 4)", options=['All', 'Survived', 'Not Survived'])
 
 filtered_data_age_hist = df_train.copy()
 
@@ -105,7 +105,7 @@ st.altair_chart(age_hist_chart)
 col3, col4 = st.columns(2)
 
 # Filter by Parch for Visualization 4
-parch_filter = col3.selectbox("Filter by Parch (Visualization 4)", options=['All'] + list(df_train['Parch'].unique()))
+parch_filter = col3.selectbox("Filter by Parch (Visualization 5)", options=['All'] + list(df_train['Parch'].unique()))
 filtered_data_parch = df_train if parch_filter == 'All' else df_train[df_train['Parch'] == parch_filter]
 
 # Visualization 4: SibSp and Parch Distribution (Bar Chart)
