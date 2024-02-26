@@ -4,7 +4,7 @@ import altair as alt
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.title("Realatives")
+st.title("Relatives")
 st.markdown('how many people would you bring?')
 
 # Load your data (replace this with your actual data loading code)
